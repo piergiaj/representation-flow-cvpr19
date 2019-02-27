@@ -27,7 +27,7 @@ We introduce the representation flow layer, which can be found in [rep_flow_laye
 
 We include our pretrained models for HMDB and Kinetics in [models/](models).
 
-We tested our models on HMDB and Kinetics and provide the files and class labes used in [data](data).
+We tested our models on HMDB and Kinetics and provide the files and class labes used in [data](/data/).
 
 ## Results
 
