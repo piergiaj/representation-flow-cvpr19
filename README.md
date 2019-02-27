@@ -48,16 +48,12 @@ We tested our models on HMDB and Kinetics and provide the files and class labes 
 Examples of representation flows for various actions. The representation flow is computed after the 3rd residual block and captures some sematic motion information. At this point, the representations are low dimensional (28x28).
 
 
-<img src="https://piergiaj.github.io/rep-flow-site/box_flow_c15.gif">
-<img src="https://piergiaj.github.io/rep-flow-site/swing_flow_c1.gif">
-<img src="https://piergiaj.github.io/rep-flow-site/handstand_flow_c21.gif">
+<img src="https://piergiaj.github.io/rep-flow-site/box_flow_c15.gif"> <img src="https://piergiaj.github.io/rep-flow-site/swing_flow_c1.gif"> <img src="https://piergiaj.github.io/rep-flow-site/handstand_flow_c21.gif">
 
 
 Examples of representation flows for different channels for "clapping." Some channels capture the hand motion, while other channels focus on different features/motion patterns not present in this clip.
 
-<img src="https://piergiaj.github.io/rep-flow-site/clap_flow_c8.gif">
-<img src="https://piergiaj.github.io/rep-flow-site/clap_flow_c16.gif">
-<img src="https://piergiaj.github.io/rep-flow-site/clap_flow_c21.gif">
+<img src="https://piergiaj.github.io/rep-flow-site/clap_flow_c8.gif"> <img src="https://piergiaj.github.io/rep-flow-site/clap_flow_c16.gif"> <img src="https://piergiaj.github.io/rep-flow-site/clap_flow_c21.gif">
 
 
 
