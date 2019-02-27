@@ -1,0 +1,6 @@
+*.pyc
+*~
+*#
+data/
+logs/
+tmp/
