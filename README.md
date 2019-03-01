@@ -8,7 +8,7 @@ This repository contains the code for our [CVPR 2019 paper](https://arxiv.org/ab
 
 If you find the code useful for your research, please cite our paper:
 
-        @inproceedings{piergiovanni2018repflow,
+        @inproceedings{repflow2019,
               title={Representation Flow for Action Recognition},
               booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
               author={AJ Piergiovanni and Michael S. Ryoo},
