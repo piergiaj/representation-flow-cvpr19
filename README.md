@@ -59,7 +59,7 @@ Examples of representation flows for different channels for "clapping." Some cha
 
 # Requirements
 
-Our code has been tested on Ubuntu 14.04 and 16.04 using python 3.6, [PyTorch](pytorch.org) version 0.4.1 with a Titan X GPU. Our dataloads use [lintel](https://github.com/dukebw/lintel) to load the frames from the video.
+Our code has been tested on Ubuntu 14.04 and 16.04 using python 3.6, [PyTorch](pytorch.org) version 0.4.1 with a Titan X GPU. Our data loading uses [lintel](https://github.com/dukebw/lintel) to extract frames from the video.
 
 
 # Setup
