@@ -66,4 +66,6 @@ Our code has been tested on Ubuntu 14.04 and 16.04 using python 3.6, [PyTorch](p
 
 1. Download the code ```git clone https://github.com/piergiaj/representation-flow-cvpr19.git```
 
+2. Pre-trained models are avialable [here](https://drive.google.com/drive/folders/1mzTqycnew1aXnTza6MSQxmmIHCk2LGEn?usp=sharing).
+
 3. [train_model.py](train_model.py) contains the code to train and evaluate models.
