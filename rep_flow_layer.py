@@ -6,27 +6,32 @@ import math
 
 class FlowLayer(nn.Module):
 
-    def __init__(self, channels=1, params=[1,1,1,1,1], n_iter=10):
+    def __init__(self, channels=1, bottleneck=32, params=[1,1,1,1,1], n_iter=10):
         super(FlowLayer, self).__init__()
+        self.bottleneck = nn.Conv3d(channels, bottleneck, stride=1, padding=0, bias=False, kernel_size=1)
+        self.unbottleneck = nn.Conv3d(bottleneck*2, channels, stride=1, padding=0, bias=False, kernel_size=1)
+        self.bn = nn.BatchNorm3d(channels)
+        channels = bottleneck
+        
         self.n_iter = n_iter
         if params[0]:
-            self.img_grad = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).repeat(channels,1,1,1))
-            self.img_grad2 = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).transpose(3,2).repeat(channels,1,1,1))
+            self.img_grad = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).repeat(channels,channels,1,1))
+            self.img_grad2 = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).transpose(3,2).repeat(channels,channels,1,1))
         else:
-            self.img_grad = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).repeat(channels,1,1,1), requires_grad=False)
-            self.img_grad2 = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).transpose(3,2).repeat(channels,1,1,1), requires_grad=False)            
+            self.img_grad = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).repeat(channels,channels,1,1), requires_grad=False)
+            self.img_grad2 = nn.Parameter(torch.FloatTensor([[[[-0.5,0,0.5]]]]).transpose(3,2).repeat(channels,channels,1,1), requires_grad=False)            
 
             
         if params[1]:
-            self.f_grad = nn.Parameter(torch.FloatTensor([[[[-1,1]]]]).repeat(channels,1,1,1))
-            self.f_grad2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,1,1,1))
-            self.div = nn.Parameter(torch.FloatTensor([[[[-1,1]]]]).repeat(channels,1,1,1))
-            self.div2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,1,1,1))            
+            self.f_grad = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1))
+            self.f_grad2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1))
+            self.div = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1))
+            self.div2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1))            
         else:
-            self.f_grad = nn.Parameter(torch.FloatTensor([[[[-1,1]]]]).repeat(channels,1,1,1), requires_grad=False)
-            self.f_grad2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,1,1,1), requires_grad=False)
-            self.div = nn.Parameter(torch.FloatTensor([[[[-1,1]]]]).repeat(channels,1,1,1), requires_grad=False)
-            self.div2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,1,1,1), requires_grad=False)
+            self.f_grad = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1), requires_grad=False)
+            self.f_grad2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1), requires_grad=False)
+            self.div = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1), requires_grad=False)
+            self.div2 = nn.Parameter(torch.FloatTensor([[[[-1],[1]]]]).repeat(channels,channels,1,1), requires_grad=False)
 
             
         self.channels = channels
@@ -50,35 +55,44 @@ class FlowLayer(nn.Module):
         return x
             
     def forward_grad(self, x):
-        grad_x = F.conv2d(F.pad(x, (0,1,0,0)), self.f_grad, groups=self.channels)
-        grad_x[:,:,:,-1] = 0
+        grad_x = F.conv2d(F.pad(x, (0,0,0,1)), self.f_grad)#, groups=self.channels)
+        grad_x[:,:,-1,:] = 0
         
-        grad_y = F.conv2d(F.pad(x, (0,0,0,1)), self.f_grad2, groups=self.channels)
+        grad_y = F.conv2d(F.pad(x, (0,0,0,1)), self.f_grad2)#, groups=self.channels)
         grad_y[:,:,-1,:] = 0
         return grad_x, grad_y
 
 
     def divergence(self, x, y):
-        tx = F.pad(x[:,:,:,:-1], (1,0,0,0))
+        tx = F.pad(x[:,:,:-1,:], (0,0,1,0))
         ty = F.pad(y[:,:,:-1,:], (0,0,1,0))
         
-        grad_x = F.conv2d(F.pad(tx, (0,1,0,0)), self.div, groups=self.channels)
-        grad_y = F.conv2d(F.pad(ty, (0,0,0,1)), self.div2, groups=self.channels)
+        grad_x = F.conv2d(F.pad(tx, (0,0,0,1)), self.div)#, groups=self.channels)
+        grad_y = F.conv2d(F.pad(ty, (0,0,0,1)), self.div2)#, groups=self.channels)
         return grad_x + grad_y
         
         
-    def forward(self, x, y):
+    def forward(self, x):
+        residual = x[:,:,:-1]
+        x = self.bottleneck(x)
+        inp = self.norm_img(x)
+        x = inp[:,:,:-1]
+        y = inp[:,:,1:]
+        b,c,t,h,w = x.size()
+        x = x.permute(0,2,1,3,4).contiguous().view(b*t,c,h,w)
+        y = y.permute(0,2,1,3,4).contiguous().view(b*t,c,h,w)
+        
         u1 = torch.zeros_like(x)
         u2 = torch.zeros_like(x)
         l_t = self.l * self.t
         taut = self.a/self.t
 
-        grad2_x = F.conv2d(F.pad(y,(1,1,0,0)), self.img_grad, groups=self.channels, padding=0, stride=1)
+        grad2_x = F.conv2d(F.pad(y,(1,1,0,0)), self.img_grad, padding=0, stride=1)#, groups=self.channels)
         grad2_x[:,:,:,0] = 0.5 * (x[:,:,:,1] - x[:,:,:,0])
         grad2_x[:,:,:,-1] = 0.5 * (x[:,:,:,-1] - x[:,:,:,-2])
 
         
-        grad2_y = F.conv2d(F.pad(y, (0,0,1,1)), self.img_grad2, groups=self.channels, padding=0, stride=1)
+        grad2_y = F.conv2d(F.pad(y, (0,0,1,1)), self.img_grad2, padding=0, stride=1)#, groups=self.channels)
         grad2_y[:,:,0,:] = 0.5 * (x[:,:,1,:] - x[:,:,0,:])
         grad2_y[:,:,-1,:] = 0.5 * (x[:,:,-1,:] - x[:,:,-2,:])
         
@@ -136,4 +150,11 @@ class FlowLayer(nn.Module):
             del u2x
             del u2y
             
-        return u1, u2
+
+
+        flow = torch.cat([u1,u2], dim=1)
+        flow = flow.view(b,t,c*2,h,w).contiguous().permute(0,2,1,3,4)
+        flow = self.unbottleneck(flow)
+        flow = self.bn(flow)
+        return F.relu(residual+flow)
+        
