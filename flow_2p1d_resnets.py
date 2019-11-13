@@ -1,3 +1,10 @@
+"""
+Please use the kinetics_2p1d_model.py file for representation flow.
+
+This file is outdated, included for replicating HMDB experiments and needs to be used with the old rep_flow_layer.py (https://github.com/piergiaj/representation-flow-cvpr19/commit/787564a99adabb41bf739c7f4b8edf7c89ace6f0#diff-1e2177049dfe6727b914853184ee3d40)
+
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
