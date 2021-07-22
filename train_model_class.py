@@ -119,6 +119,7 @@ class Model:
         #
         #################
         log_name = datetime.datetime.today().strftime('%m-%d-%H%M')+'-'+args.exp_name
+        os.mkdir('./logs')  # REF added
         log_path = os.path.join('logs/',log_name)
         os.mkdir(log_path)
         os.system('cp * logs/'+log_name+'/')
