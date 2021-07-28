@@ -38,10 +38,28 @@ class Model:
 
         if args.system == 'hmdb':
             from hmdb_dataset import HMDB as DS
-            dataseta = DS('data/hmdb/split1_train.txt', '/ssd/hmdb/', model=args.model, mode=args.mode, length=args.length)
+            dataseta = DS('data/hmdb/split0_train.txt', './ssd/hmdb/', model=args.model, mode=args.mode, length=args.length)
             dl = torch.utils.data.DataLoader(dataseta, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
 
-            dataset = DS('data/hmdb/split1_test.txt', '/ssd/hmdb/', model=args.model, mode=args.mode, length=args.length, c2i=dataseta.class_to_id)
+            dataset = DS('data/hmdb/split0_test.txt', './ssd/hmdb/', model=args.model, mode=args.mode, length=args.length, c2i=dataseta.class_to_id)
+            vdl = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
+            dataloader = {'train':dl, 'val':vdl}
+
+        if args.system == 'hmdb_noise_aware':
+            from hmdb_dataset import HMDB as DS
+            dataseta = DS('data/hmdb/split1_train.txt', './ssd/hmdb/', model=args.model, mode=args.mode, length=args.length)
+            dl = torch.utils.data.DataLoader(dataseta, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
+
+            dataset = DS('data/hmdb/split1_test.txt', './ssd/hmdb/', model=args.model, mode=args.mode, length=args.length, c2i=dataseta.class_to_id)
+            vdl = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
+            dataloader = {'train':dl, 'val':vdl}
+
+        if args.system == 'hmdb_noisy_test':
+            from hmdb_dataset import HMDB as DS
+            dataseta = DS('data/hmdb/split0_train.txt', './ssd/hmdb/', model=args.model, mode=args.mode, length=args.length)
+            dl = torch.utils.data.DataLoader(dataseta, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
+
+            dataset = DS('data/hmdb/split1_test.txt', './ssd/hmdb/', model=args.model, mode=args.mode, length=args.length, c2i=dataseta.class_to_id)
             vdl = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
             dataloader = {'train':dl, 'val':vdl}
 
