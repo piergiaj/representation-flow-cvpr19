@@ -17,13 +17,13 @@ If you find the code useful for your research, please cite our paper:
 
 
 # Representation Flow Layer
-![tsf](/examples/flow-layer.png?raw=true "repflow")
+![tsf](./examples/flow-layer.png?raw=true "repflow")
 
 We introduce the representation flow layer, which can be found in [rep_flow_layer.py](rep_flow_layer.py). This layer iteratively estimates the flow, can be applied to CNN feature maps, and is fully learnable to maximize classification performance.
 
 
 # Activity Recognition Experiments
-![model overview](/examples/flow-in-network.png?raw=true "model overview")
+![model overview](./examples/flow-in-network.png?raw=true "model overview")
 
 We include our pretrained models for HMDB and Kinetics in [models/](models).
 
